@@ -5,6 +5,7 @@
 
 	// returns array of score maps from NFL.com
 	// if no arguments passed, current scores will be returned
+	// only final scores are returned due to in-progress games using Javascript
 	// pass year and week arguments to retrieve past scores
 	function getNFLScores() {
 		if(func_num_args() == 2) {
@@ -15,7 +16,6 @@
 			$html = file_get_html("http://www.nfl.com/scores/$year/REG$week");
 		else
 			$html = file_get_html("http://www.nfl.com/scores");
-		$date = $html->find('.date');
 		$time = $html->find('.time-left');
 		$awayTeam = $html->find('.away-team .team-name a');
 		$homeTeam = $html->find('.home-team .team-name a');
@@ -23,8 +23,7 @@
 		$homeScore = $html->find('.home-team .total-score');
 		
 		$games = array();
-		for($i = 0, $len = sizeof($date); $i < $len; $i++) {
-			$dt = $date[$i]->innertext;
+		for($i = 0, $len = sizeof($awayTeam); $i < $len; $i++) {
 			$tm = $time[$i]->innertext;
 			$at = $awayTeam[$i]->innertext;
 			$ht = $homeTeam[$i]->innertext;
@@ -32,7 +31,6 @@
 			$hs = (int) $homeScore[$i]->innertext;
 			$winner = ($tm == 'FINAL') ? (($hs > $as) ? $ht : $at) : NULL;
 			array_push($games, array(
-				'date' => $dt,
 				'time' => $tm,
 				'awayTeam' => $at,
 				'homeTeam' => $ht,
